@@ -1,14 +1,12 @@
-name: Flutter CI
+name: Flutter CI/CD
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -29,5 +27,12 @@ jobs:
     - name: Run tests
       run: flutter test
 
-    - name: Build debug APK
-      run: flutter build apk --debug
+    - name: Build release APK
+      run: flutter build apk --release
+
+    - name: Upload release APK to GitHub
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build/app/outputs/flutter-apk/app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
