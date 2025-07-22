@@ -3,36 +3,47 @@ name: Flutter CI/CD
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Trigger when pushing a version tag like v1.0.1
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [android]  # Add 'ios' later if you use macOS runners
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.32.6'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.6'
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Analyze code
-      run: flutter analyze
+      - name: Analyze code
+        run: flutter analyze
 
-    - name: Run tests
-      run: flutter test
+      - name: Run tests
+        run: flutter test
 
-    - name: Build release APK
-      run: flutter build apk --release
+      - name: Build Android APK
+        if: matrix.platform == 'android'
+        run: flutter build apk --release
 
-    - name: Upload release APK to GitHub
-      uses: softprops/action-gh-release@v2
-      with:
-        files: build/app/outputs/flutter-apk/app-release.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      # --- future iOS build ---
+      # - name: Build iOS App
+      #   if: matrix.platform == 'ios'
+      #   run: flutter build ios --release
+
+      - name: Upload release APK to GitHub
+        if: matrix.platform == 'android'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
