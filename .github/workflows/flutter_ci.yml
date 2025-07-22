@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FLUTTER_DISABLE_WATCHER: true
+      FLUTTER_DISABLE_ANALYTICS: true
 
     strategy:
       matrix:
